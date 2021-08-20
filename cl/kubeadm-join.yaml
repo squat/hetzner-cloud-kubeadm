@@ -1,0 +1,21 @@
+storage:
+  files:
+    - path: /opt/kubeadm/config.yaml
+      filesystem: root
+      mode: 0640
+      contents:
+        inline: |
+          apiVersion: kubeadm.k8s.io/v1beta2
+          kind: JoinConfiguration
+          controlPlane:
+            certificateKey: "${certificate_key}"
+          discovery:
+            bootstrapToken:
+              apiServerEndpoint: ${api}
+              token: "${token}"
+              caCertHashes:
+              - ${ca_cert_hash}
+          nodeRegistration:
+            name: "${name}"
+            kubeletExtraArgs:
+              volume-plugin-dir: /opt/libexec/kubernetes/kubelet-plugins/volume/exec/

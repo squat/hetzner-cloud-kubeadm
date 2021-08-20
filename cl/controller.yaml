@@ -1,0 +1,105 @@
+storage:
+  files:
+    - path: /etc/modules-load.d/k8s.conf
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: br_netfilter
+    - path: /etc/sysctl.d/k8s.conf
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          net.bridge.bridge-nf-call-ip6tables = 1
+          net.bridge.bridge-nf-call-iptables = 1
+    - path: /etc/docker/daemon.json
+      filesystem: root
+      mode: 0644
+      contents:
+        inline: |
+          {
+            "exec-opts": ["native.cgroupdriver=systemd"]
+          }
+    - path: /etc/systemd/system/kubelet.service
+      filesystem: root
+      mode: 0644
+      contents:
+        remote:
+          url: https://raw.githubusercontent.com/kubernetes/release/${release}/cmd/kubepkg/templates/latest/deb/kubelet/lib/systemd/system/kubelet.service
+    - path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+      filesystem: root
+      mode: 0644
+      contents:
+        remote:
+          url: https://raw.githubusercontent.com/kubernetes/release/${release}/cmd/kubepkg/templates/latest/deb/kubeadm/10-kubeadm.conf
+    - path: /opt/bin/kubeadm
+      filesystem: root
+      mode: 0755
+      contents:
+        remote:
+          url: https://storage.googleapis.com/kubernetes-release/release/${version}/bin/linux/amd64/kubeadm
+    - path: /opt/bin/kubelet
+      filesystem: root
+      mode: 0755
+      contents:
+        remote:
+          url: https://storage.googleapis.com/kubernetes-release/release/${version}/bin/linux/amd64/kubelet
+    - path: /opt/bin/kubectl
+      filesystem: root
+      mode: 0755
+      contents:
+        remote:
+          url: https://storage.googleapis.com/kubernetes-release/release/${version}/bin/linux/amd64/kubectl
+  directories:
+    - path: /etc/kubelet/manifests
+      filesystem: root
+      mode: 0755
+systemd:
+  units:
+    - name: docker.service
+      enabled: true
+    - name: kubelet.service
+      enabled: true
+      dropins:
+        - name: 20-kubeadm.conf
+          contents: |
+            [Unit]
+            Wants=docker.service
+            After=docker.service
+            [Service]
+            ExecStart=
+            ExecStart=/opt/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_CONFIG_ARGS $KUBELET_KUBEADM_ARGS $KUBELET_EXTRA_ARGS
+    - name: kubeadm-init.service
+      contents: |
+        [Unit]
+        Description=Init a Kubernetes cluster with kubeadm
+        Wants=kubelet.service
+        After=kubelet.service
+        ConditionPathExists=!/opt/kubeadm/init.done
+
+        [Service]
+        Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/opt/bin
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/opt/bin/kubeadm init --config /opt/kubeadm/config.yaml --upload-certs
+        ExecStartPost=/usr/bin/touch /opt/kubeadm/init.done
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: kubeadm-join.service
+      contents: |
+        [Unit]
+        Description=Join a Kubernetes cluster with kubeadm
+        Wants=kubelet.service
+        After=kubelet.service
+        ConditionPathExists=!/opt/kubeadm/join.done
+
+        [Service]
+        Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/opt/bin
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/opt/bin/kubeadm join --config /opt/kubeadm/config.yaml
+        ExecStartPost=/usr/bin/touch /opt/kubeadm/join.done
+
+        [Install]
+        WantedBy=multi-user.target
