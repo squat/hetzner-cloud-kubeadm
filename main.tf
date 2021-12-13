@@ -6,7 +6,7 @@ locals {
 }
 
 module "controller-init" {
-  source = "git::https://github.com/squat/hetzner-cloud-flatcar-linux.git?ref=ce10e88dfe0ae3ba60f3562b69f8ae2a006e9b79"
+  source = "git::https://github.com/squat/hetzner-cloud-flatcar-linux.git?ref=985afb1c7bb4a0159ae77acf6a6be6011bf859ed"
   count  = local.count_init
 
   name = "${var.cluster_name}-controller-${count.index}"
@@ -25,7 +25,7 @@ module "controller-init" {
 }
 
 module "controllers-join" {
-  source = "git::https://github.com/squat/hetzner-cloud-flatcar-linux.git?ref=ce10e88dfe0ae3ba60f3562b69f8ae2a006e9b79"
+  source = "git::https://github.com/squat/hetzner-cloud-flatcar-linux.git?ref=985afb1c7bb4a0159ae77acf6a6be6011bf859ed"
   count  = local.count_join
 
   name = "${var.cluster_name}-controller-${count.index + 1}"
