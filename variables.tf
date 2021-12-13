@@ -23,13 +23,13 @@ variable "network_zone" {
 
 variable "controller_type" {
   type        = string
-  default     = "cx11"
+  default     = "cpx11"
   description = "The server type to rent for controllers"
 }
 
 variable "worker_type" {
   type        = string
-  default     = "cx11"
+  default     = "cpx11"
   description = "The server type to rent for workers"
 }
 
