@@ -6,7 +6,7 @@ locals {
 }
 
 module "controller-init" {
-  source = "git::https://github.com/squat/hetzner-cloud-flatcar-linux.git?ref=985afb1c7bb4a0159ae77acf6a6be6011bf859ed"
+  source = "git::https://github.com/squat/hetzner-cloud-flatcar-linux.git?ref=285559d091fd651ba41fdb7c5af9b75c787feb5c"
   count  = local.count_init
 
   name = "${var.cluster_name}-controller-${count.index}"
@@ -25,7 +25,7 @@ module "controller-init" {
 }
 
 module "controllers-join" {
-  source = "git::https://github.com/squat/hetzner-cloud-flatcar-linux.git?ref=985afb1c7bb4a0159ae77acf6a6be6011bf859ed"
+  source = "git::https://github.com/squat/hetzner-cloud-flatcar-linux.git?ref=285559d091fd651ba41fdb7c5af9b75c787feb5c"
   count  = local.count_join
 
   name = "${var.cluster_name}-controller-${count.index + 1}"
@@ -84,7 +84,7 @@ data "template_file" "kubeadm-config-join" {
 
 resource "random_password" "certificate_key" {
   length           = 64
-  number           = false
+  numeric          = false
   lower            = false
   upper            = false
   special          = true
@@ -93,7 +93,7 @@ resource "random_password" "certificate_key" {
 
 resource "random_password" "token-1" {
   length  = 6
-  number  = true
+  numeric = true
   lower   = true
   special = false
   upper   = false
@@ -101,7 +101,7 @@ resource "random_password" "token-1" {
 
 resource "random_password" "token-2" {
   length  = 16
-  number  = true
+  numeric = true
   lower   = true
   special = false
   upper   = false
