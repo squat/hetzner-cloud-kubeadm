@@ -1,5 +1,5 @@
 module "workers" {
-  source = "git::https://github.com/squat/hetzner-cloud-kubeadm-workers.git?ref=458417dc1229914b97fa5393176acf69fe3c6e26"
+  source = "git::https://github.com/squat/hetzner-cloud-kubeadm-workers.git?ref=b0626e23210b6a731694aabafbd38c255c774cf2"
 
   api                = "${hcloud_load_balancer.lb.ipv4}:6443"
   token              = local.token
